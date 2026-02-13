@@ -24,20 +24,20 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
 
         setIsSubmitting(true);
 
+        // Get email preferences
+        const { kaineEmail, kelvinEmail } = getSettings();
+        const recipients = [kaineEmail, kelvinEmail].filter(Boolean); // Send to both if set
+
         // Call API to send email (Implementation detail for server connection)
         try {
             await fetch('/api/declarations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, author })
+                body: JSON.stringify({ text, author, recipients })
             });
         } catch (error) {
             console.error("Failed to sync/email declaration", error);
         }
-
-        // Get email preferences for toast message
-        const settings = getSettings();
-        const recipientEmail = author === "Kaine" ? settings.kaineEmail : settings.kelvinEmail;
 
         // Browser Notification
         if ("Notification" in window) {
@@ -63,11 +63,7 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
         setText("");
         setIsSubmitting(false);
 
-        if (recipientEmail) {
-            toast.success(`Declaration affirmed! Notification sent to ${recipientEmail}`);
-        } else {
-            toast.success("Declaration affirmed!");
-        }
+        toast.success("Notification sent");
     };
 
     return (

@@ -5,7 +5,7 @@ import { sendEmailNotification } from '@/lib/email';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { content, author, recipientEmail } = body;
+        const { content, author, recipients } = body;
 
         if (!content || !author) {
             return NextResponse.json(
@@ -20,8 +20,10 @@ export async function POST(req: NextRequest) {
         const result = stmt.run(content, author);
 
         // Run asynchronously to not block response
-        // Pass the recipientEmail received from client settings
-        sendEmailNotification(author, content, recipientEmail).catch(console.error);
+        // Pass the recipients array received from client settings
+        if (recipients && recipients.length > 0) {
+            sendEmailNotification(author, content, recipients).catch(console.error);
+        }
 
         return NextResponse.json({ id: result.lastInsertRowid, content, author }, { status: 201 });
     } catch (error) {

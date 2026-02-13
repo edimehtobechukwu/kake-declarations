@@ -13,10 +13,12 @@ const transporter = nodemailer.createTransport({
 export async function sendEmailNotification(
     author: string,
     content: string,
-    recipientEmail?: string
+    recipientEmail?: string | string[]
 ) {
-    // Use the provided recipient email, or fall back to env var, or placeholder
-    const toEmail = recipientEmail || process.env.RECIPIENT_EMAIL || 'test@example.com';
+    // Use the provided recipient email(s), or fall back to env var, or placeholder
+    const toEmail = recipientEmail
+        ? (Array.isArray(recipientEmail) ? recipientEmail.join(', ') : recipientEmail)
+        : process.env.RECIPIENT_EMAIL || 'test@example.com';
 
     const mailOptions = {
         from: process.env.SMTP_FROM || process.env.SMTP_USER,

@@ -139,7 +139,7 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
                                     <Loader2 className="w-5 h-5 animate-spin" />
                                 ) : (
                                     <>
-                                        <span>Affirm to Universe</span>
+                                        <span>Send Your Declaration</span>
                                         <Sparkles className="w-4 h-4" />
                                     </>
                                 )}

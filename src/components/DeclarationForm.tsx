@@ -41,9 +41,13 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
                 throw new Error(data.details || data.error || "Unknown server error");
             }
 
-            // Browser Notification
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification("New Declaration from " + author, { body: text });
+            // Browser Notification (Safeguarded for Mobile)
+            try {
+                if ("Notification" in window && Notification.permission === "granted") {
+                    new Notification("New Declaration from " + author, { body: text });
+                }
+            } catch (notifyError) {
+                console.log("Browser notification failed (ignoring):", notifyError);
             }
 
             // Call parent handler (Sync to LocalStorage)

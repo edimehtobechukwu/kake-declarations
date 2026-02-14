@@ -4,13 +4,12 @@ import { motion, AnimatePresence } from "motion/react";
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function HistoryList({ newDeclaration }: { newDeclaration?: Declaration | null }) {
-    const [history, setHistory] = useState<Declaration[]>([]);
+export function HistoryList({ history }: { history: Declaration[] }) {
     const [showHistory, setShowHistory] = useState(false);
 
-    useEffect(() => {
-        setHistory(getDeclarations());
-    }, [newDeclaration]);
+    // useEffect(() => {
+    //     setHistory(getDeclarations());
+    // }, [newDeclaration]);
 
     const toggleHistory = () => setShowHistory(!showHistory);
 

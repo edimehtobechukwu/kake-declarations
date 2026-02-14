@@ -4,13 +4,25 @@ import { Quote } from "lucide-react";
 
 interface HeroProps {
     declaration: Declaration | null;
+    isLoading?: boolean;
 }
 
-export function Hero({ declaration }: HeroProps) {
+export function Hero({ declaration, isLoading = false }: HeroProps) {
     return (
         <section className="relative w-full flex flex-col items-center justify-center text-center px-4 md:px-0">
             <AnimatePresence mode="wait">
-                {declaration ? (
+                {isLoading ? (
+                    <motion.div
+                        key="loading"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="w-full py-24 px-8 rounded-[2.5rem] bg-white/40 backdrop-blur-md border border-white/50 shadow-sm flex flex-col items-center justify-center gap-6"
+                    >
+                        <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-500 rounded-full animate-spin"></div>
+                        <p className="text-slate-400 text-sm font-medium tracking-wide uppercase animate-pulse">Loading inspiration...</p>
+                    </motion.div>
+                ) : declaration ? (
                     <motion.div
                         key={declaration.id}
                         initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}

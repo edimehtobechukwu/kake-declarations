@@ -1,9 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import db from '@/lib/db';
+import { sql } from '@vercel/postgres';
 import { sendEmailNotification } from '@/lib/email';
+import { initDb } from '@/lib/db';
 
 // Force dynamic to ensure Env Vars are always loaded
 export const dynamic = 'force-dynamic';
+
+export async function GET() {
+    try {
+        await initDb(); // Ensure table exists
+        const { rows } = await sql`SELECT * FROM declarations ORDER BY created_at DESC LIMIT 50;`;
+        return NextResponse.json(rows);
+    } catch (error) {
+        console.error('Failed to fetch declarations:', error);
+        return NextResponse.json({ error: 'Failed to fetch' }, { status: 500 });
+    }
+}
 
 export async function POST(req: NextRequest) {
     try {
@@ -24,10 +36,14 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        const stmt = db.prepare(
-            'INSERT INTO declarations (content, author) VALUES (?, ?)'
-        );
-        const result = stmt.run(content, author);
+        // Insert into Postgres
+        await initDb(); // Ensure table exists
+        const result = await sql`
+            INSERT INTO declarations (content, author)
+            VALUES (${content}, ${author})
+            RETURNING id, content, author, created_at;
+        `;
+        const newDeclaration = result.rows[0];
 
         // Run synchronously (awaited) to ensure Vercel doesn't freeze the lambda before email sends
         // If recipients provided (from UI), use them. Otherwise pass undefined to use server-side Env Var fallback.
@@ -39,7 +55,7 @@ export async function POST(req: NextRequest) {
             console.error("Email sending failed (but declaration saved):", emailError);
         }
 
-        return NextResponse.json({ id: result.lastInsertRowid, content, author }, { status: 201 });
+        return NextResponse.json(newDeclaration, { status: 201 });
     } catch (error: any) {
         console.error('Error saving declaration:', error);
         return NextResponse.json(
@@ -51,20 +67,6 @@ export async function POST(req: NextRequest) {
                     hasRecipientEnv: !!process.env.RECIPIENT_EMAIL
                 }
             },
-            { status: 500 }
-        );
-    }
-}
-
-export async function GET() {
-    try {
-        const stmt = db.prepare('SELECT * FROM declarations ORDER BY created_at DESC');
-        const declarations = stmt.all(); // Returns an array of objects
-        return NextResponse.json(declarations);
-    } catch (error) {
-        console.error('Error fetching declarations:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch declarations' },
             { status: 500 }
         );
     }

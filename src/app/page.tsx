@@ -11,11 +11,28 @@ import { getLatestDeclaration, saveDeclaration, Declaration } from "@/lib/storag
 
 export default function Home() {
   const [currentDeclaration, setCurrentDeclaration] = useState<Declaration | null>(null);
+  const [history, setHistory] = useState<Declaration[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDeclarations = async () => {
+    try {
+      const res = await fetch('/api/declarations');
+      if (res.ok) {
+        const data = await res.json();
+        setHistory(data);
+        if (data.length > 0) {
+          setCurrentDeclaration(data[0]);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch declarations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Load initial state
-    const latest = getLatestDeclaration();
-    setCurrentDeclaration(latest);
+    fetchDeclarations();
 
     // Request notification permission early if possible
     if ("Notification" in window && Notification.permission === "default") {
@@ -23,9 +40,9 @@ export default function Home() {
     }
   }, []);
 
-  const handleDeclare = (text: string, author: 'Kaine' | 'Kelvin') => {
-    const newDeclaration = saveDeclaration(text, author);
-    setCurrentDeclaration(newDeclaration);
+  const handleDeclare = async (text: string, author: 'Kaine' | 'Kelvin') => {
+    // Optimistic update or refresh
+    await fetchDeclarations();
   };
 
   return (
@@ -42,9 +59,9 @@ export default function Home() {
       <Header />
 
       <main className="flex-grow flex flex-col items-center w-full max-w-4xl mx-auto px-6 py-8 space-y-12">
-        <Hero declaration={currentDeclaration} />
+        <Hero declaration={currentDeclaration} isLoading={loading} />
         <DeclarationForm onDeclare={handleDeclare} />
-        <HistoryList newDeclaration={currentDeclaration} />
+        <HistoryList history={history} />
       </main>
 
       <Footer />

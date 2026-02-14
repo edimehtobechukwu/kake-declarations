@@ -34,7 +34,7 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
             const res = await fetch('/api/declarations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, author, recipients })
+                body: JSON.stringify({ content: text, author, recipients })
             });
             data = await res.json();
 

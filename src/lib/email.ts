@@ -40,9 +40,8 @@ export async function sendEmailNotification(
             return `MOCK_MODE (My SMTP_USER is ${process.env.SMTP_USER ? 'Set' : 'Null'}). Target: ${toEmail}`;
         }
         await transporter.sendMail(mailOptions);
-        return toEmail;
+        console.log(`Email sent successfully to ${toEmail}`);
     } catch (error) {
         console.error('Error sending email:', error);
-        return `Error: ${error}`;
     }
 }

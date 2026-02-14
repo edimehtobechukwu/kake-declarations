@@ -72,11 +72,7 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
         setText("");
         setIsSubmitting(false);
 
-        if (data?.debugSentTo) {
-            toast.success(`Sent to: ${data.debugSentTo}`);
-        } else {
-            toast.success("Notification sent (No debug info)");
-        }
+        toast.success("Notification sent");
     };
 
     return (

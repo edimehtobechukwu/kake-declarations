@@ -29,10 +29,15 @@ export async function POST(req: NextRequest) {
         );
         const result = stmt.run(content, author);
 
-        // Run asynchronously to not block response
+        // Run synchronously (awaited) to ensure Vercel doesn't freeze the lambda before email sends
         // If recipients provided (from UI), use them. Otherwise pass undefined to use server-side Env Var fallback.
         const headerRecipients = (recipients && recipients.length > 0) ? recipients : undefined;
-        sendEmailNotification(author, content, headerRecipients).catch(console.error);
+
+        try {
+            await sendEmailNotification(author, content, headerRecipients);
+        } catch (emailError) {
+            console.error("Email sending failed (but declaration saved):", emailError);
+        }
 
         return NextResponse.json({ id: result.lastInsertRowid, content, author }, { status: 201 });
     } catch (error: any) {

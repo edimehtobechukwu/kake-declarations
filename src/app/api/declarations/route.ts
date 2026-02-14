@@ -20,10 +20,9 @@ export async function POST(req: NextRequest) {
         const result = stmt.run(content, author);
 
         // Run asynchronously to not block response
-        // Pass the recipients array received from client settings
-        if (recipients && recipients.length > 0) {
-            sendEmailNotification(author, content, recipients).catch(console.error);
-        }
+        // If recipients provided (from UI), use them. Otherwise pass undefined to use server-side Env Var fallback.
+        const headerRecipients = (recipients && recipients.length > 0) ? recipients : undefined;
+        sendEmailNotification(author, content, headerRecipients).catch(console.error);
 
         return NextResponse.json({ id: result.lastInsertRowid, content, author }, { status: 201 });
     } catch (error) {

@@ -68,7 +68,11 @@ export function saveDeclaration(text: string, author: 'Kaine' | 'Kelvin'): Decla
     if (typeof window !== 'undefined') {
         const current = getDeclarations();
         const updated = [newDecl, ...current].slice(0, 50);
-        localStorage.setItem(DECLARATIONS_KEY, JSON.stringify(updated));
+        try {
+            localStorage.setItem(DECLARATIONS_KEY, JSON.stringify(updated));
+        } catch (e) {
+            console.error("Failed to save declaration locally:", e);
+        }
     }
 
     return newDecl;

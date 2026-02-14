@@ -24,55 +24,41 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
 
         setIsSubmitting(true);
 
-        // Get email preferences
-        const { kaineEmail, kelvinEmail } = getSettings();
-        const recipients = [kaineEmail, kelvinEmail].filter(Boolean); // Send to both if set
-
-        // Call API to send email (Implementation detail for server connection)
-        let data;
         try {
+            // Get email preferences
+            const { kaineEmail, kelvinEmail } = getSettings();
+            const recipients = [kaineEmail, kelvinEmail].filter(Boolean);
+
+            // Call API
             const res = await fetch('/api/declarations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ content: text, author, recipients })
             });
-            data = await res.json();
 
+            const data = await res.json();
             if (!res.ok) {
                 throw new Error(data.details || data.error || "Unknown server error");
             }
+
+            // Browser Notification
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification("New Declaration from " + author, { body: text });
+            }
+
+            // Call parent handler (Sync to LocalStorage)
+            onDeclare(text, author);
+
+            // Reset
+            setText("");
+            toast.success("Notification sent");
+
         } catch (error: any) {
             console.error("Failed to sync/email declaration", error);
             toast.error(`Failed: ${error.message}`);
+        } finally {
             setIsSubmitting(false);
-            return;
         }
-
-        // Browser Notification
-        if ("Notification" in window) {
-            if (Notification.permission === "granted") {
-                new Notification("New Declaration from " + author, {
-                    body: text,
-                });
-            } else if (Notification.permission !== "denied") {
-                Notification.requestPermission().then(permission => {
-                    if (permission === "granted") {
-                        new Notification("New Declaration from " + author, {
-                            body: text,
-                        });
-                    }
-                });
-            }
-        }
-
-        // Call parent handler
-        onDeclare(text, author);
-
-        // Reset
-        setText("");
-        setIsSubmitting(false);
-
-        toast.success("Notification sent");
     };
 
     return (

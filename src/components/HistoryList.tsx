@@ -1,15 +1,11 @@
-import { useState, useEffect } from "react";
-import { getDeclarations, Declaration } from "@/lib/storage";
+import { useState } from "react";
+import { Declaration } from "@/lib/storage";
 import { motion, AnimatePresence } from "motion/react";
 import { CalendarDays, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export function HistoryList({ history }: { history: Declaration[] }) {
     const [showHistory, setShowHistory] = useState(false);
-
-    // useEffect(() => {
-    //     setHistory(getDeclarations());
-    // }, [newDeclaration]);
 
     const toggleHistory = () => setShowHistory(!showHistory);
 

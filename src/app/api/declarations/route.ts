@@ -9,7 +9,12 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         await initDb(); // Ensure table exists
-        const { rows } = await sql`SELECT * FROM declarations ORDER BY created_at DESC LIMIT 50;`;
+        const { rows } = await sql`
+            SELECT id, content as text, author, created_at as timestamp 
+            FROM declarations 
+            ORDER BY created_at DESC 
+            LIMIT 50;
+        `;
         return NextResponse.json(rows);
     } catch (error) {
         console.error('Failed to fetch declarations:', error);
@@ -41,7 +46,7 @@ export async function POST(req: NextRequest) {
         const result = await sql`
             INSERT INTO declarations (content, author)
             VALUES (${content}, ${author})
-            RETURNING id, content, author, created_at;
+            RETURNING id, content as text, author, created_at as timestamp;
         `;
         const newDeclaration = result.rows[0];
 

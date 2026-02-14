@@ -2,10 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import db from '@/lib/db';
 import { sendEmailNotification } from '@/lib/email';
 
+// Force dynamic to ensure Env Vars are always loaded
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const { content, author, recipients } = body;
+
+        // DEBUG: Check if we have Env Vars in this route
+        const debugEnv = {
+            hasSmtpUser: !!process.env.SMTP_USER,
+            hasRecipientEnv: !!process.env.RECIPIENT_EMAIL
+        };
+        console.log("Declarations Route Env Check:", debugEnv);
 
         if (!content || !author) {
             return NextResponse.json(

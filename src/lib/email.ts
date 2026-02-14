@@ -37,7 +37,7 @@ export async function sendEmailNotification(
     try {
         if (!process.env.SMTP_USER) {
             console.log('Mock Email Sent (Configure .env.local to send real emails):', mailOptions);
-            return;
+            return `MOCK_MODE (My SMTP_USER is ${process.env.SMTP_USER ? 'Set' : 'Null'}). Target: ${toEmail}`;
         }
         await transporter.sendMail(mailOptions);
         return toEmail;

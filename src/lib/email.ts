@@ -40,8 +40,9 @@ export async function sendEmailNotification(
             return;
         }
         await transporter.sendMail(mailOptions);
-        console.log(`Email sent successfully to ${toEmail}`);
+        return toEmail;
     } catch (error) {
         console.error('Error sending email:', error);
+        return `Error: ${error}`;
     }
 }

@@ -29,12 +29,14 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
         const recipients = [kaineEmail, kelvinEmail].filter(Boolean); // Send to both if set
 
         // Call API to send email (Implementation detail for server connection)
+        let data;
         try {
-            await fetch('/api/declarations', {
+            const res = await fetch('/api/declarations', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text, author, recipients })
             });
+            data = await res.json();
         } catch (error) {
             console.error("Failed to sync/email declaration", error);
         }
@@ -63,7 +65,11 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
         setText("");
         setIsSubmitting(false);
 
-        toast.success("Notification sent");
+        if (data?.debugSentTo) {
+            toast.success(`Sent to: ${data.debugSentTo}`);
+        } else {
+            toast.success("Notification sent (No debug info)");
+        }
     };
 
     return (

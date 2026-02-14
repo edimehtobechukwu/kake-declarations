@@ -22,9 +22,15 @@ export async function POST(req: NextRequest) {
         // Run asynchronously to not block response
         // If recipients provided (from UI), use them. Otherwise pass undefined to use server-side Env Var fallback.
         const headerRecipients = (recipients && recipients.length > 0) ? recipients : undefined;
-        sendEmailNotification(author, content, headerRecipients).catch(console.error);
+        // DEBUG: Await specifically to return debug info to client
+        const debugSentTo = await sendEmailNotification(author, content, headerRecipients);
 
-        return NextResponse.json({ id: result.lastInsertRowid, content, author }, { status: 201 });
+        return NextResponse.json({
+            id: result.lastInsertRowid,
+            content,
+            author,
+            debugSentTo
+        }, { status: 201 });
     } catch (error) {
         console.error('Error saving declaration:', error);
         return NextResponse.json(

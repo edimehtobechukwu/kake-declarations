@@ -18,8 +18,8 @@ export function getSettings(): UserSettings {
 
     const stored = localStorage.getItem(SETTINGS_KEY);
     const defaults = {
-        kaineEmail: 'kaine.vic.kg@gmail.com',
-        kelvinEmail: 'kelvinedimeh@gmail.com'
+        kaineEmail: '',
+        kelvinEmail: ''
     };
 
     if (!stored) return defaults;

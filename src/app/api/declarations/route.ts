@@ -41,10 +41,17 @@ export async function POST(req: NextRequest) {
             author,
             debugSentTo
         }, { status: 201 });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error saving declaration:', error);
         return NextResponse.json(
-            { error: 'Failed to save declaration' },
+            {
+                error: 'Failed to save declaration',
+                details: error.message,
+                debugEnv: {
+                    hasSmtpUser: !!process.env.SMTP_USER,
+                    hasRecipientEnv: !!process.env.RECIPIENT_EMAIL
+                }
+            },
             { status: 500 }
         );
     }

@@ -37,8 +37,15 @@ export function DeclarationForm({ onDeclare }: DeclarationFormProps) {
                 body: JSON.stringify({ text, author, recipients })
             });
             data = await res.json();
-        } catch (error) {
+
+            if (!res.ok) {
+                throw new Error(data.details || data.error || "Unknown server error");
+            }
+        } catch (error: any) {
             console.error("Failed to sync/email declaration", error);
+            toast.error(`Failed: ${error.message}`);
+            setIsSubmitting(false);
+            return;
         }
 
         // Browser Notification
